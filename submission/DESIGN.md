@@ -2,6 +2,9 @@
 
 **Start time:** 2026-04-26
 
+##Topology
+https://github.com/rupook14/Projects/issues/1#issue-4340058978
+
 ## Problem
 Given query vector `q` (d dims, f32) and database `D` (N×d, f32),
 return the K nearest rows by squared Euclidean distance, sorted
