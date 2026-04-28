@@ -51,6 +51,8 @@ both pass, confirming tie-breaking is correct end-to-end.
 The Dockerfile contained a stub `sdk_debug_shell` that printed one
 line and exited 0 without invoking the real compiler. `cslc` reported
 "Compilation successful" every time but produced 0 PE programs.
+Chatgpt gave me this work around since it couldn't figure out out to
+extract the actual cslc and sdk file into /opt/sdk.
 Diagnosed via `--verbose` flag which revealed "Produced 0 distinct
 PE programs." Fixed by copying the real `sdk_debug_shell` from
 `/workspace` into `/opt/sdk/`.
