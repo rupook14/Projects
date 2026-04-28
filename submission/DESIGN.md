@@ -2,7 +2,7 @@
 
 **Start time:** 2026-04-26
 
-https://github.com/rupook14/Projects/issues/1#issue-4340058978
+<img width="737" height="833" alt="Image" src="https://github.com/user-attachments/assets/c30b5815-9ba3-4a1a-8fab-928eb81e2ded" />
 
 ## Problem
 Given query vector `q` (d dims, f32) and database `D` (N×d, f32),
