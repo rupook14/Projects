@@ -2,7 +2,6 @@
 
 **Start time:** 2026-04-26
 
-##Topology
 https://github.com/rupook14/Projects/issues/1#issue-4340058978
 
 ## Problem
