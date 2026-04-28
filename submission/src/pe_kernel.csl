@@ -1,0 +1,75 @@
+param memcpy_params;
+param P:     i16;
+param N:     i16;
+param d:     i16;
+param K:     i16;
+param PE_ID: i16;
+
+const sys_mod = @import_module("<memcpy/memcpy>", memcpy_params);
+
+const MAX_D:    i16 = 32;
+const MAX_K:    i16 = 256;
+const MAX_ROWS: i16 = 256;
+
+var q_buf: [MAX_D]f32;
+var shard: [MAX_ROWS * MAX_D]f32;
+var out_dist: [MAX_K]f32;
+var out_idx:  [MAX_K]u32;
+
+var q_ptr:     [*]f32 = &q_buf;
+var shard_ptr: [*]f32 = &shard;
+var dist_ptr:  [*]f32 = &out_dist;
+var idx_ptr:   [*]u32 = &out_idx;
+
+fn init_topk() void {
+  for (@range(i16, K)) |i| {
+    out_dist[i] = @as(f32, @bitcast(f32, @as(u32, 0x7F800000)));
+    out_idx[i]  = 0xFFFFFFFF;
+  }
+}
+
+fn insert(dist: f32, idx: u32) void {
+  if (dist > out_dist[K - 1]) return;
+  if (dist == out_dist[K - 1] and idx >= out_idx[K - 1]) return;
+  var pos: i16 = K;
+  for (@range(i16, K)) |i| {
+    if (dist < out_dist[i]) { pos = i; break; }
+    if (dist == out_dist[i] and idx < out_idx[i]) { pos = i; break; }
+  }
+  if (pos == K) return;
+  var j: i16 = K - 1;
+  while (j > pos) : (j -= 1) {
+    out_dist[j] = out_dist[j - 1];
+    out_idx[j]  = out_idx[j - 1];
+  }
+  out_dist[pos] = dist;
+  out_idx[pos]  = idx;
+}
+
+fn compute() void {
+  init_topk();
+  const total_pes: i16 = P * P;
+  const rows_per_pe: i16 = (N + total_pes - 1) / total_pes;
+  const first_row: i16 = PE_ID * rows_per_pe;
+  var last_row: i16 = first_row + rows_per_pe;
+  if (last_row > N) { last_row = N; }
+  for (@range(i16, first_row, last_row, 1)) |r| {
+    const local_r: i16 = r - first_row;
+    const base: i16 = local_r * MAX_D;
+    var dist: f32 = 0.0;
+    for (@range(i16, d)) |i| {
+      const diff: f32 = shard[base + i] - q_buf[i];
+      dist += diff * diff;
+    }
+    insert(dist, @as(u32, r));
+  }
+  sys_mod.unblock_cmd_stream();
+}
+
+comptime {
+  @export_symbol(q_ptr,     "q_buf");
+  @export_symbol(shard_ptr, "shard");
+  @export_symbol(dist_ptr,  "out_dist");
+  @export_symbol(idx_ptr,   "out_idx");
+  @export_symbol(compute);
+}
