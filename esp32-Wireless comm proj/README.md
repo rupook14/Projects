@@ -1,5 +1,5 @@
-# ESP32 Beeper
-The ESP32 Beeper is a peer-to-peer encrypted messaging device that works completely offline. 
+# ESP32 WIreless-Comm
+The ESP32 is a peer-to-peer encrypted messaging device that works completely offline. 
   
   Originally an academic project for a Wireless Communication and Microcontroller class, it uses ESP-NOW over IEEE 802.11 on Channel 1 (2.412 GHz) with Espressif's vendor-specific action frames (OUI 0x18FE34) for direct bidirectional communication.
 Three packet types handle all communication: a 239-byte Message for text, a 9-byte AlertPacket for SOS and cancel, and a 1-byte PingPacket sent every 5 seconds to signal presence. RSSI is measured passively by capturing incoming 802.11 management frames in promiscuous mode. All messages are encrypted end‑to‑end using AES‑128‑CCMP with a shared PMK and a single LMK.
